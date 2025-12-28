@@ -1,7 +1,4 @@
 import React from 'react'
-
-import config from '@/payload.config'
-import './styles.css'
 import { ArrowDownToLine, CheckCircle, ChevronLeft, Leaf } from 'lucide-react'
 import Link from 'next/link'
 import { Button, buttonVariants } from '@/components/ui/button'

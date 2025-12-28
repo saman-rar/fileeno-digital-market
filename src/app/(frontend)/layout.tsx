@@ -1,9 +1,10 @@
 import { Metadata } from 'next'
 import React from 'react'
 import { Vazirmatn } from 'next/font/google'
-import './styles.css'
+import '../styles.css'
 import { cn } from '@/lib/utils'
 import Navbar from '@/components/navigation/Navbar'
+import Providers from '@/components/Providers'
 
 const vazir = Vazirmatn({
   subsets: ['arabic'],
@@ -23,8 +24,10 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     <html lang="fa" dir="rtl" className={cn('h-full', vazir.className)}>
       <body className={cn('relative h-full font-vazir antialiased bg-background text-foreground')}>
         <main className="relative flex min-h-screen flex-col">
-          <Navbar />
-          <div className="flex-1">{children}</div>
+          <Providers>
+            <Navbar />
+            <div className="flex-1">{children}</div>
+          </Providers>
         </main>
       </body>
     </html>
