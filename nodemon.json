@@ -1,0 +1,5 @@
+{
+  "watch": ["src", "payload.config.ts"],
+  "ext": "ts,tsx,json",
+  "exec": "tsx src/server.ts"
+}

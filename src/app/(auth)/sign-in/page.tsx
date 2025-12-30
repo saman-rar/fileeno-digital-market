@@ -9,74 +9,82 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { SignUpCredentialsValidator, TSignUpCredentialsValidator } from '@/lib/validators'
+import { SignInCredentialsValidator, TSignInCredentialsValidator } from '@/lib/validators'
 import { trpc } from '@/trpc/client'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import ZodErrors from '@/components/ZodErrors'
 
-const SignUpPage = () => {
+const SignInPage = () => {
+  const searchParams = useSearchParams()
   const router = useRouter()
+
+  const isSeller = searchParams.get('as') === 'seller'
+  const origin = searchParams.get('origin')
+
+  const continueAsSeller = () => {
+    router.push('?as=seller')
+  }
+  const continueAsCustomer = () => {
+    router.replace('/sign-in', undefined)
+  }
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<TSignUpCredentialsValidator>({
-    resolver: zodResolver(SignUpCredentialsValidator),
+  } = useForm<TSignInCredentialsValidator>({
+    resolver: zodResolver(SignInCredentialsValidator),
   })
 
-  const { mutateAsync, error: mutateError } = trpc.auth.createPayloadUser.useMutation({
-    onSuccess: ({ sentToEmail }) => {
-      router.push('/verify-email?to=' + sentToEmail)
+  const {
+    mutateAsync,
+    isPending,
+    error: mutateError,
+  } = trpc.auth.signIn.useMutation({
+    onSuccess: () => {
+      router.refresh()
+
+      if (origin) {
+        return router.push('/' + origin)
+      }
+
+      if (isSeller) {
+        return router.push('/admin')
+      }
+
+      router.push('/')
     },
   })
 
-  const onSubmit = ({ email, password, confirmPassword }: TSignUpCredentialsValidator) => {
-    toast.promise(mutateAsync({ email, password, confirmPassword }), {
+  const onSubmit = ({ email, password }: TSignInCredentialsValidator) => {
+    toast.promise(mutateAsync({ email, password }), {
       loading: 'در حال برسی اطلاعات ...',
-      success: 'یک لینک حاوی تایید حساب به ایمیل شما ارسال شد.',
-      // @ts-expect-error okay
+      success: 'با موقیت وارد شدید.',
       error: () => {
-        if (mutateError?.data?.code === 'CONFLICT') {
-          return {
-            type: 'info',
-            message: 'حساب کاربری با این ایمیل یافت شد',
-            action: (
-              <Link
-                href="sign-in"
-                className={buttonVariants({
-                  className: 'mr-auto!',
-                  variant: 'secondary',
-                })}
-              >
-                ورود
-              </Link>
-            ),
-          }
+        if (mutateError?.data?.code === 'UNAUTHORIZED') {
+          return 'ایمیل یا رمز عبور صحیح نمی‌باشد'
         }
-
-        return 'خطا در ساخت حساب. لطفا دوباره امتحان کنید.'
+        return 'خطایی رخ داد'
       },
     })
   }
-
   return (
     <>
       <div className="container px-15 relative flex pt-20 flex-col items-center justify-center lg:px-0">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-87.5">
           <div className="flex flex-col items-center space-y-2 text-center">
             <Icons.logo className="h-30 w-30" />
-            <h1 className="text-2xl font-bold">ساخت حساب جدید</h1>
+            <h1 className="text-2xl font-bold">ورود به {isSeller ? 'پنل فروش' : 'فایلینو'}</h1>
             <Link
-              href="sign-in"
+              href="sign-up"
               className={buttonVariants({
                 variant: 'link',
                 className: 'text-muted-foreground!',
               })}
             >
               <ArrowLeft className="w-4 h-4" />
-              از قبل ثبت نام کردید؟ وارد شوید
+              حساب کاربر ندارید؟ ثبت نام کنید.
             </Link>
           </div>
           <div className="grid gap-6">
@@ -107,32 +115,40 @@ const SignUpPage = () => {
                     id="password"
                   />
                 </div>
-                <div className="grid gap-2 py-2">
-                  <Label htmlFor="confirmPassword">تکرار رمز عبور</Label>
-                  <Input
-                    dir="ltr"
-                    {...register('confirmPassword')}
-                    className={cn({
-                      'focus-visible:ring-red-500': errors.confirmPassword,
-                    })}
-                    type="password"
-                    placeholder="رمز عبور خود را مجدد وارد کنید"
-                    id="confirmPassword"
-                  />
-                </div>
 
                 <ZodErrors errors={errors} />
 
                 <Button disabled={isSubmitting} className="mt-2">
-                  ثبت نام
+                  ورود
                   {isSubmitting && ' ...'}
                 </Button>
               </div>
             </form>
+
+            <div className="relative">
+              <div aria-hidden="true" className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-sm uppercase">
+                <span className="bg-background px-2 text-accent-foreground">
+                  {isSeller ? 'دستتون خورد؟' : 'فروشنده هستید؟'}
+                </span>
+              </div>
+            </div>
+
+            {isSeller ? (
+              <Button onClick={continueAsCustomer} disabled={isPending} variant="secondary">
+                ادامه به عنوان کاربر
+              </Button>
+            ) : (
+              <Button onClick={continueAsSeller} disabled={isPending} variant="secondary">
+                ادامه به عنوان فروشنده
+              </Button>
+            )}
           </div>
         </div>
       </div>
     </>
   )
 }
-export default SignUpPage
+export default SignInPage
