@@ -1,7 +1,6 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { fa } from '@payloadcms/translations/languages/fa'
-import { en } from '@payloadcms/translations/languages/en'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -11,6 +10,9 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { transporter } from './lib/nodemailer'
+import { Products } from './collections/Products'
+import { ProductFiles } from './collections/ProductFiles'
+import { Orders } from './collections/Orders'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -27,7 +29,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [Users, Products, ProductFiles, Orders, Media],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -43,6 +45,6 @@ export default buildConfig({
 
   i18n: {
     fallbackLanguage: 'en',
-    supportedLanguages: { fa, en },
+    supportedLanguages: { fa },
   },
 })

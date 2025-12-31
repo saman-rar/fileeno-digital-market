@@ -1,21 +1,24 @@
 'use client'
 
+import { signIn } from 'next-auth/react'
 import { Icons } from '@/components/Icons'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SignInCredentialsValidator, TSignInCredentialsValidator } from '@/lib/validators'
-import { trpc } from '@/trpc/client'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
 import ZodErrors from '@/components/ZodErrors'
+import { useState } from 'react'
 
 const SignInPage = () => {
+  const [isLoading, setIsLoading] = useState(false)
+
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -32,40 +35,43 @@ const SignInPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<TSignInCredentialsValidator>({
     resolver: zodResolver(SignInCredentialsValidator),
   })
 
-  const {
-    mutateAsync,
-    isPending,
-    error: mutateError,
-  } = trpc.auth.signIn.useMutation({
-    onSuccess: () => {
-      router.refresh()
+  const onSubmit = async ({ email, password }: TSignInCredentialsValidator) => {
+    setIsLoading(true)
 
-      if (origin) {
-        return router.push('/' + origin)
+    const signInPromise = async () => {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        throw new Error(result.error)
       }
 
-      if (isSeller) {
-        return router.push('/admin')
-      }
+      return result
+    }
 
-      router.push('/')
-    },
-  })
-
-  const onSubmit = ({ email, password }: TSignInCredentialsValidator) => {
-    toast.promise(mutateAsync({ email, password }), {
+    await toast.promise(signInPromise(), {
       loading: 'در حال برسی اطلاعات ...',
-      success: 'با موقیت وارد شدید.',
-      error: () => {
-        if (mutateError?.data?.code === 'UNAUTHORIZED') {
-          return 'ایمیل یا رمز عبور صحیح نمی‌باشد'
+      success: () => {
+        const path = isSeller ? '/admin' : origin ? `/${origin}` : '/'
+        router.push(path)
+        router.refresh()
+        return 'خوش آمدید! چنذد لحظه دیگر منتقل میشوید.'
+      },
+      error: (err) => {
+        setIsLoading(false)
+        if (err.message === 'CredentialsSignin') {
+          return 'ایمیل یا رمز عبور اشتباه است'
         }
-        return 'خطایی رخ داد'
+
+        return 'مشکلی در ورود پیش آمد'
       },
     })
   }
@@ -118,9 +124,9 @@ const SignInPage = () => {
 
                 <ZodErrors errors={errors} />
 
-                <Button disabled={isSubmitting} className="mt-2">
+                <Button disabled={isLoading} className="mt-2">
                   ورود
-                  {isSubmitting && ' ...'}
+                  {isLoading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}{' '}
                 </Button>
               </div>
             </form>
@@ -137,11 +143,11 @@ const SignInPage = () => {
             </div>
 
             {isSeller ? (
-              <Button onClick={continueAsCustomer} disabled={isPending} variant="secondary">
+              <Button onClick={continueAsCustomer} disabled={isLoading} variant="secondary">
                 ادامه به عنوان کاربر
               </Button>
             ) : (
-              <Button onClick={continueAsSeller} disabled={isPending} variant="secondary">
+              <Button onClick={continueAsSeller} disabled={isLoading} variant="secondary">
                 ادامه به عنوان فروشنده
               </Button>
             )}

@@ -1,4 +1,4 @@
-import { SignInCredentialsValidator, SignUpCredentialsValidator } from '@/lib/validators'
+import { SignUpCredentialsValidator } from '@/lib/validators'
 import { publicProcedure, router } from './trpc'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
@@ -54,28 +54,4 @@ export const authRouter = router({
 
       return { success: true }
     }),
-
-  signIn: publicProcedure.input(SignInCredentialsValidator).mutation(async ({ input, ctx }) => {
-    const { email, password } = input
-    const { res, req } = ctx
-
-    const payload = await getPayload({ config: configPromise })
-
-    try {
-      await payload.login({
-        collection: 'users',
-        data: {
-          email,
-          password,
-        },
-        // @ts-expect-error context already pass from express middleware
-        res,
-        req,
-      })
-
-      return { success: true }
-    } catch {
-      throw new TRPCError({ code: 'UNAUTHORIZED' })
-    }
-  }),
 })

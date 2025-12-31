@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import { nextApp, nextHandler } from './next-utils'
 import * as trcpExpress from '@trpc/server/adapters/express'
@@ -9,11 +10,11 @@ const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 
-// export type ExpressContext = Awaited<ReturnType<typeof createContext>>
+export type ExpressContext = Awaited<ReturnType<typeof createContext>>
 
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.NEXT_PUBLIC_SERVER_URL,
     credentials: true,
   }),
 )

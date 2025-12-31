@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/hooks/use-auth'
+import { signOut } from 'next-auth/react'
 import { Button } from './ui/button'
 import {
   DropdownMenu,
@@ -9,11 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-import { User } from '@/payload-types'
 import Link from 'next/link'
 
-const UserAccountNav = ({ user }: { user: User }) => {
-  const { signOut } = useAuth()
+interface UserAccountNavProps {
+  user: {
+    name?: string | null | undefined
+    email?: string | null | undefined
+    image?: string | null | undefined
+  }
+}
+
+const UserAccountNav = ({ user }: UserAccountNavProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="overflow-visible">
@@ -36,7 +42,7 @@ const UserAccountNav = ({ user }: { user: User }) => {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={signOut} className="cursor-pointer flex justify-center">
+        <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer flex justify-center">
           خروج از حساب
         </DropdownMenuItem>
       </DropdownMenuContent>

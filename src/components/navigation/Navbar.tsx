@@ -4,21 +4,14 @@ import { Icons } from '../Icons'
 import NavItems from './NavItems'
 import { buttonVariants } from '../ui/button'
 import Cart from '../Cart'
-import { getServerSideUser } from '@/lib/payload-utils'
-import { cookies } from 'next/headers'
 import UserAccountNav from '../UserAccountNav'
-import { User } from '@/payload-types'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 const Navbar = async () => {
-  const nextCookies = await cookies()
-  const { user } = await getServerSideUser(nextCookies)
-  // const user: User = {
-  //   createdAt: '2025/12/5',
-  //   email: 'saman@faraji.com',
-  //   id: '12345',
-  //   updatedAt: '2025/12/5',
-  //   role: 'admin',
-  // }
+  const session = await getServerSession(authOptions)
+
+  const user = session?.user
 
   return (
     <div dir="ltr" className="bg-white sticky z-50 top-0 inset-x-0 h-16">
