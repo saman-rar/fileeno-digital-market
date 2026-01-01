@@ -15,7 +15,9 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'رمز عبور', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('fileds are empty')
+        }
 
         const payload = await getPayload({ config: configPromise })
 
@@ -35,7 +37,7 @@ export const authOptions: NextAuthOptions = {
             }
           }
         } catch {
-          return null
+          throw new Error('payload login failed!')
         }
 
         return null

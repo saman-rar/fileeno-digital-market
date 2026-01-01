@@ -128,6 +128,8 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
+  products?: (string | Product)[] | null;
+  product_files?: (string | ProductFile)[] | null;
   role?: ('admin' | 'user') | null;
   updatedAt: string;
   createdAt: string;
@@ -341,6 +343,8 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  products?: T;
+  product_files?: T;
   role?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -25,8 +25,11 @@ export default buildConfig({
   }),
   admin: {
     user: Users.slug,
-    importMap: {
-      baseDir: path.resolve(dirname),
+    components: {
+      logout: {
+        // @ts-expect-error payload type error
+        Button: ['@/components/admin/Logout'],
+      },
     },
   },
   collections: [Users, Products, ProductFiles, Orders, Media],

@@ -83,7 +83,7 @@ export const ProductFiles: CollectionConfig = {
   slug: 'product_files',
   labels: {
     plural: 'فایل های محصولات',
-    singular: 'فایل محصولات',
+    singular: 'فایل',
   },
   admin: {
     hidden: ({ user }) => user.role !== 'admin',
@@ -98,7 +98,6 @@ export const ProductFiles: CollectionConfig = {
   },
   upload: {
     staticDir: 'product_files',
-    mimeTypes: ['images/*', 'fonts/*', 'application/postscript'],
   },
   fields: [
     {

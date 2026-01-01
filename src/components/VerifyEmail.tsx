@@ -5,7 +5,7 @@ import { ChevronLeft, XCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { buttonVariants } from './ui/button'
-import Loading from '@/app/loading'
+import Loading from '@/app/(auth)/loading'
 
 interface VerifyEmailProps {
   token: string

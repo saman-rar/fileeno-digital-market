@@ -3,6 +3,7 @@ import { ArrowDownToLine, CheckCircle, ChevronLeft, Leaf } from 'lucide-react'
 import Link from 'next/link'
 import { Button, buttonVariants } from '@/components/ui/button'
 import MaxWidthWrapper from '@/components/MaxWidthWrapper'
+import ProductReeal from '@/components/products/ProductReeal'
 const perks = [
   {
     name: 'تحویل فوری',
@@ -45,7 +46,14 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* TODO: list products */}
+        <ProductReeal
+          query={{
+            sort: 'desc',
+            limit: 4,
+          }}
+          title="جدیدترین ها"
+          href="/products"
+        />
       </MaxWidthWrapper>
 
       <section className="border-t border-gray-200 bg-gray-50">
