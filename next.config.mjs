@@ -9,8 +9,17 @@ const nextConfig = {
       '.js': ['.ts', '.tsx', '.js', '.jsx'],
       '.mjs': ['.mts', '.mjs'],
     }
-
     return webpackConfig
+  },
+  images: {
+    remotePatterns: [
+      {
+        hostname: 'localhost',
+        pathname: '**',
+        port: '3000',
+        protocol: 'http',
+      },
+    ],
   },
 }
 

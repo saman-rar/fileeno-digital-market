@@ -4,9 +4,11 @@ import { publicProcedure, router } from './trpc'
 import { QueryValidator } from '@/lib/validators'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { paymentRouter } from './payment-router'
 
 export const appRouter = router({
   auth: authRouter,
+  payment: paymentRouter,
 
   getInfiniteProducts: publicProcedure
     .input(

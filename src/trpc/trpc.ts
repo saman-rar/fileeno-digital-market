@@ -17,7 +17,8 @@ export const privateProcedure = t.procedure.use(({ ctx, next }) => {
 
   return next({
     ctx: {
-      session: { ...ctx.session, user: ctx.session.user },
+      session: { ...ctx.session },
+      user: ctx.session.user,
     },
   })
 })
