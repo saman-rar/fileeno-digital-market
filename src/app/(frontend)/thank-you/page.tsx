@@ -10,7 +10,7 @@ import { faPriceformatter, formattedLabel, getTotalPrice } from '@/lib/utils'
 import Link from 'next/link'
 
 interface ThankYouPageProps {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 const ThankYouPage = async ({ searchParams }: ThankYouPageProps) => {
