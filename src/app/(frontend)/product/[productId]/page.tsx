@@ -9,9 +9,9 @@ import ProductReeal from '@/components/products/ProductReeal'
 import AddToCartButton from '@/components/AddToCartButton'
 
 interface ProdctDetailPageProps {
-  params: {
+  params: Promise<{
     productId: string
-  }
+  }>
 }
 
 const BREADCRUMPS = [
